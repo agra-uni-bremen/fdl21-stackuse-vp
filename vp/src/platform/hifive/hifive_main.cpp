@@ -3,7 +3,7 @@
 
 #include "aon.h"
 #include "can.h"
-#include "core/common/clint.h"
+#include "core/common/real_clint.h"
 #include "core/rv32/syscall.h"
 #include "elf_loader.h"
 #include "fe310_plic.h"
@@ -118,8 +118,10 @@ int sc_main(int argc, char **argv) {
 	core.exit_func = opt.exit_func;
 	core.stack_usage(opt.stack_usage);
 
+	std::vector<clint_interrupt_target*> clint_targets {&core};
+
 	FE310_PLIC<1, 53, 64, 7> plic("PLIC");
-	CLINT<1> clint("CLINT");
+	RealCLINT clint("CLINT", clint_targets);
 	AON aon("AON");
 	PRCI prci("PRCI");
 	GPIO gpio0("GPIO0", INT_GPIO_BASE);
@@ -196,7 +198,6 @@ int sc_main(int argc, char **argv) {
 
 	// connect interrupt signals/communication
 	plic.target_harts[0] = &core;
-	clint.target_harts[0] = &core;
 	gpio0.plic = &plic;
 	uart0.plic = &plic;
 	slip.plic = &plic;
