@@ -36,9 +36,6 @@ FunctionSet::FunctionSet(std::string name)
 	if ((n = dwfl_module_getsymtab(mod)) == -1)
 		goto err;
 
-	// XXX: We could resize funcs here and resize is again later
-	// after we determined how many symbols constitute functions.
-
 	for (int i = 0; i < n; i++) {
 		GElf_Sym sym;
 		GElf_Addr addr;
