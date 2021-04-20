@@ -7,6 +7,7 @@ add_library(core-common
 		debug_memory.cpp
 		rawmode.cpp
 		functions.cpp
+		stack_usage.cpp
 		${HEADERS})
 
 target_include_directories(core-common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
