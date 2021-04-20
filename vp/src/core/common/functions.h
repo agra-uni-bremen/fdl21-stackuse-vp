@@ -4,21 +4,22 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include <vector>
+#include <unordered_map>
 
 class FuncInfo {
 public:
 	std::string name;
-	uint64_t    addr;
 	size_t      stack_size;
 
-	FuncInfo(std::string _name, uint64_t _addr, size_t _stack_size)
-		: name(_name), addr(_addr), stack_size(_stack_size) {}
+	FuncInfo(std::string _name, size_t _stack_size)
+		: name(_name), stack_size(_stack_size) {}
 };
 
 class FunctionSet {
 private:
-	std::vector<FuncInfo> funcs;
+	typedef uint64_t Address;
+
+	std::unordered_map<Address, FuncInfo> funcs;
 public:
 	FunctionSet(std::string filename);
 };

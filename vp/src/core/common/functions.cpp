@@ -48,8 +48,10 @@ FunctionSet::FunctionSet(std::string name)
 		if (!name || GELF_ST_TYPE(sym.st_info) != STT_FUNC)
 			continue;
 
-		FuncInfo f(std::string(name), (uint64_t)addr, 2342);
-		funcs.push_back(std::move(f));
+		funcs.insert(std::make_pair<Address, FuncInfo>(
+			(Address)addr,
+			FuncInfo(std::string(name), 2342)
+		));
 	}
 
 	dwfl_report_end(dwfl, NULL, NULL);
