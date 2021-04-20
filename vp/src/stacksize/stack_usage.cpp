@@ -68,6 +68,8 @@ parseUsage(FuncStackUsage &usage, std::string line)
 		usage.name = name;
 		usage.stack_usage = size;
 		usage.types = types;
+
+		return true;
 	}
 
 	return false;
@@ -82,8 +84,8 @@ StackUsage::StackUsage(std::string name, std::ifstream &stream)
 		FuncStackUsage usage;
 
 		if (!parseUsage(usage, line))
-			throw ParserError(name, lineNum, "invalid assignment");
-		if ((usage.types & FSTACK_BOUNDED) || (usage.types & FSTACK_STATIC))
+			throw ParserError(name, lineNum, "invalid function stack usage");
+		if (!((usage.types & FSTACK_BOUNDED) || (usage.types & FSTACK_STATIC)))
 			throw std::invalid_argument("unbounded stack usage in " + usage.name);
 
 		assert(!funcs.count(usage.name));
