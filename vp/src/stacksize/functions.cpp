@@ -18,20 +18,21 @@ static const Dwfl_Callbacks offline_callbacks = (Dwfl_Callbacks){
 	.debuginfo_path = &debuginfo_path,
 };
 
-FunctionSet::FunctionSet(std::string name)
+FunctionSet::FunctionSet(std::string elf, std::string acc_stack_usage)
+  : stack(acc_stack_usage)
 {
 	int n, fd;
 	Dwfl_Module *mod;
 	Dwfl *dwfl = nullptr;
-	const char *fn = name.c_str();
+	const char *elffn = elf.c_str();
 
-	if ((fd = open(fn, O_RDONLY)) == -1)
+	if ((fd = open(elffn, O_RDONLY)) == -1)
 		throw std::system_error(errno, std::generic_category());
 	if (!(dwfl = dwfl_begin(&offline_callbacks)))
 		goto err;
 
 	dwfl_report_begin(dwfl);
-	if (!(mod = dwfl_report_offline(dwfl, fn, fn, fd)))
+	if (!(mod = dwfl_report_offline(dwfl, elffn, elffn, fd)))
 		goto err;
 	if ((n = dwfl_module_getsymtab(mod)) == -1)
 		goto err;
@@ -40,14 +41,21 @@ FunctionSet::FunctionSet(std::string name)
 		GElf_Sym sym;
 		GElf_Addr addr;
 		const char *name;
+		size_t stacksize;
 
 		name = dwfl_module_getsym_info(mod, i, &sym, &addr, NULL, NULL, NULL);
 		if (!name || GELF_ST_TYPE(sym.st_info) != STT_FUNC)
 			continue;
 
+		try {
+			stacksize = stack.get_usage(name);
+		} catch (const std::out_of_range&) {
+			goto err;
+		}
+
 		funcs.insert(std::make_pair<Address, FuncInfo>(
 			(Address)addr,
-			FuncInfo(std::string(name), 2342)
+			FuncInfo(std::string(name), stacksize)
 		));
 	}
 
@@ -59,4 +67,10 @@ err:
 	close(fd);
 
 	throw std::system_error(EIO, std::generic_category());
+}
+
+FuncInfo &
+FunctionSet::get_func(Address addr)
+{
+	return funcs.at(addr);
 }

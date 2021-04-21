@@ -75,7 +75,8 @@ parseUsage(FuncStackUsage &usage, std::string line)
 	return false;
 }
 
-StackUsage::StackUsage(std::string name, std::ifstream &stream)
+void
+StackUsage::init(std::string name, std::ifstream &stream)
 {
 	std::string line;
 	size_t lineNum = 1;
@@ -93,6 +94,20 @@ StackUsage::StackUsage(std::string name, std::ifstream &stream)
 
 		lineNum++;
 	}
+}
+
+StackUsage::StackUsage(std::string name, std::ifstream &stream)
+{
+	init(name, stream);
+}
+
+StackUsage::StackUsage(std::string filepath)
+{
+	std::ifstream stack_file(filepath);
+	if (!stack_file.is_open())
+		throw std::runtime_error("failed to open " + filepath);
+
+	init(filepath, stack_file);
 }
 
 size_t

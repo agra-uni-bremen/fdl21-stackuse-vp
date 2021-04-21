@@ -23,6 +23,8 @@ class StackUsage {
 private:
 	std::unordered_map<std::string, size_t> funcs;
 
+	void init(std::string name, std::ifstream &stream);
+
 public:
 	class ParserError : public std::exception {
 		std::string fileName, msg, whatstr;
@@ -42,6 +44,8 @@ public:
 	};
 
 	StackUsage(std::string name, std::ifstream &stream);
+	StackUsage(std::string filepath);
+
 	size_t get_usage(std::string func_name);
 };
 
