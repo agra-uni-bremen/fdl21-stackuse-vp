@@ -9,7 +9,6 @@
 #include "memory.h"
 #include "syscall.h"
 #include "platform/common/options.h"
-#include "functions.h"
 
 #include "gdb-mc/gdb_server.h"
 #include "gdb-mc/gdb_runner.h"
@@ -69,12 +68,11 @@ int sc_main(int argc, char **argv) {
 	CombinedMemoryInterface core_mem_if("MemoryInterface0", core, &mmu);
 	SimpleMemory mem("SimpleMemory", opt.mem_size);
 	ELFLoader loader(opt.input_program.c_str());
-	FunctionSet funcs(opt.input_program, opt.stack_usage);
 	SimpleBus<2, 3> bus("SimpleBus");
 	SyscallHandler sys("SyscallHandler");
 	DebugMemoryInterface dbg_if("DebugMemoryInterface");
 
-	(void)funcs;
+	core.stack_usage(opt.input_program, opt.stack_usage);
 
 	std::vector<clint_interrupt_target*> clint_targets {&core};
 	RealCLINT clint("CLINT", clint_targets);
