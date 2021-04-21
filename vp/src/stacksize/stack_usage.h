@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include <sys/types.h>
+
 #include <fstream>
 #include <unordered_map>
 

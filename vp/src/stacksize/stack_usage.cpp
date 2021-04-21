@@ -94,3 +94,9 @@ StackUsage::StackUsage(std::string name, std::ifstream &stream)
 		lineNum++;
 	}
 }
+
+size_t
+StackUsage::get_usage(std::string func_name)
+{
+	return funcs.at(func_name);
+}
