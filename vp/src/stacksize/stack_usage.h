@@ -19,28 +19,28 @@ public:
 	uint8_t     types;
 };
 
-class ParserError : public std::exception {
-	std::string fileName, msg, whatstr;
-	size_t line;
-
-public:
-	ParserError(std::string _fileName, size_t _line, std::string _msg)
-	    : fileName(_fileName), msg(_msg), line(_line)
-	{
-		this->whatstr = fileName + ":" + std::to_string(line) + ": " + msg;
-	}
-
-	const char *what(void) const throw()
-	{
-		return whatstr.c_str();
-	}
-};
-
 class StackUsage {
 private:
 	std::unordered_map<std::string, size_t> funcs;
 
 public:
+	class ParserError : public std::exception {
+		std::string fileName, msg, whatstr;
+		size_t line;
+
+	public:
+		ParserError(std::string _fileName, size_t _line, std::string _msg)
+		    : fileName(_fileName), msg(_msg), line(_line)
+		{
+			this->whatstr = fileName + ":" + std::to_string(line) + ": " + msg;
+		}
+
+		const char *what(void) const throw()
+		{
+			return whatstr.c_str();
+		}
+	};
+
 	StackUsage(std::string name, std::ifstream &stream);
 	size_t get_usage(std::string func_name);
 };
