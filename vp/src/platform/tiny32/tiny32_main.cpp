@@ -9,6 +9,7 @@
 #include "memory.h"
 #include "syscall.h"
 #include "platform/common/options.h"
+#include "functions.h"
 
 #include "gdb-mc/gdb_server.h"
 #include "gdb-mc/gdb_runner.h"
@@ -36,6 +37,7 @@ public:
 
 	bool quiet = false;
 	bool use_E_base_isa = false;
+	std::string stack_usage;
 
 	TinyOptions(void) {
 		// clang-format off
@@ -43,7 +45,8 @@ public:
 			("quiet", po::bool_switch(&quiet), "do not output register values on exit")
 			("memory-start", po::value<unsigned int>(&mem_start_addr), "set memory start address")
 			("memory-size", po::value<unsigned int>(&mem_size), "set memory size")
-			("use-E-base-isa", po::bool_switch(&use_E_base_isa), "use the E instead of the I integer base ISA");
+			("use-E-base-isa", po::bool_switch(&use_E_base_isa), "use the E instead of the I integer base ISA")
+			("stack-usage", po::value<std::string>(&stack_usage)->required(), "accumulated function stack-usage file");
         	// clang-format on
         }
 
@@ -66,9 +69,12 @@ int sc_main(int argc, char **argv) {
 	CombinedMemoryInterface core_mem_if("MemoryInterface0", core, &mmu);
 	SimpleMemory mem("SimpleMemory", opt.mem_size);
 	ELFLoader loader(opt.input_program.c_str());
+	FunctionSet funcs(opt.input_program, opt.stack_usage);
 	SimpleBus<2, 3> bus("SimpleBus");
 	SyscallHandler sys("SyscallHandler");
 	DebugMemoryInterface dbg_if("DebugMemoryInterface");
+
+	(void)funcs;
 
 	std::vector<clint_interrupt_target*> clint_targets {&core};
 	RealCLINT clint("CLINT", clint_targets);
