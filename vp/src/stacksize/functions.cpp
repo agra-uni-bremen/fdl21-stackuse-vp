@@ -5,6 +5,7 @@
 
 #include <elfutils/libdwfl.h>
 
+#include <iostream>
 #include <system_error>
 
 #include "functions.h"
@@ -50,7 +51,8 @@ FunctionSet::FunctionSet(std::string elf, std::string acc_stack_usage)
 		try {
 			stacksize = stack.get_usage(name);
 		} catch (const std::out_of_range&) {
-			goto err;
+			std::cerr << "couldn't determine stack usage for: " + std::string(name) << std::endl;
+			continue;
 		}
 
 		funcs.insert(std::make_pair<Address, FuncInfo>(
