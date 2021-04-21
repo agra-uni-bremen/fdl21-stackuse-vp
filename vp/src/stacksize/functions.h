@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 #include <unordered_map>
 
@@ -22,6 +23,8 @@ public:
 	typedef uint64_t Address;
 
 	FunctionSet(std::string elf, std::string acc_stack_usage);
+
+	bool has_func(Address addr);
 	FuncInfo &get_func(Address addr);
 
 private:

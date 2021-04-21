@@ -71,6 +71,12 @@ err:
 	throw std::system_error(EIO, std::generic_category());
 }
 
+bool
+FunctionSet::has_func(Address addr)
+{
+	return funcs.count(addr) > 0;
+}
+
 FuncInfo &
 FunctionSet::get_func(Address addr)
 {
