@@ -1,3 +1,5 @@
+subdirs(rtos)
+
 add_library(stacksize
 	functions.cpp
 	stack_usage.cpp)
