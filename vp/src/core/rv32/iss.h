@@ -11,6 +11,7 @@
 #include "mem_if.h"
 #include "syscall_if.h"
 #include "util/common.h"
+#include "functions.h"
 
 #include <assert.h>
 #include <stdint.h>
@@ -168,6 +169,7 @@ struct ISS : public external_interrupt_target, public clint_interrupt_target, pu
 	PrivilegeLevel prv = MachineMode;
 	int64_t lr_sc_counter = 0;
 	uint64_t total_num_instr = 0;
+	std::unique_ptr<FunctionSet> funcset = nullptr;
 
 	// last decoded and executed instruction and opcode
 	Instruction instr;
@@ -190,6 +192,7 @@ struct ISS : public external_interrupt_target, public clint_interrupt_target, pu
 
 	ISS(uint32_t hart_id, bool use_E_base_isa = false);
 
+	void stack_usage(std::string, std::string);
 	void exec_step();
 
 	uint64_t _compute_and_get_current_cycles();

@@ -115,8 +115,17 @@ ISS::ISS(uint32_t hart_id, bool use_E_base_isa) : systemc_name("Core-" + std::to
 	op = Opcode::UNDEF;
 }
 
+void ISS::stack_usage(std::string elf, std::string stack_usage) {
+	funcset = std::make_unique<FunctionSet>(elf, stack_usage);
+}
+
 void ISS::exec_step() {
 	assert(((pc & ~pc_alignment_mask()) == 0) && "misaligned instruction");
+
+	if (funcset && funcset->has_func(pc)) {
+		auto func = funcset->get_func(pc);
+		std::cout << "Stackframe: " << func.name << " (" << func.stack_size << " bytes)" << std::endl;
+	}
 
 	try {
 		uint32_t mem_word = instr_mem->load_instr(pc);
