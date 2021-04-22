@@ -1,4 +1,5 @@
 subdirs(rtos)
+subdirs(elf)
 
 add_library(stacksize
 	stacksize.cpp)
