@@ -192,7 +192,7 @@ struct ISS : public external_interrupt_target, public clint_interrupt_target, pu
 
 	ISS(uint32_t hart_id, bool use_E_base_isa = false);
 
-	void stack_usage(std::string, std::string);
+	void stack_usage(std::string);
 	void exec_step();
 
 	uint64_t _compute_and_get_current_cycles();

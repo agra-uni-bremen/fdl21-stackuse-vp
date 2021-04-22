@@ -72,7 +72,7 @@ int sc_main(int argc, char **argv) {
 	SyscallHandler sys("SyscallHandler");
 	DebugMemoryInterface dbg_if("DebugMemoryInterface");
 
-	core.stack_usage(opt.input_program, opt.stack_usage);
+	core.stack_usage(opt.stack_usage);
 
 	std::vector<clint_interrupt_target*> clint_targets {&core};
 	RealCLINT clint("CLINT", clint_targets);

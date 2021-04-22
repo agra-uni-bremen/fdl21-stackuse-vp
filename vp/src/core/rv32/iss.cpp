@@ -115,8 +115,8 @@ ISS::ISS(uint32_t hart_id, bool use_E_base_isa) : systemc_name("Core-" + std::to
 	op = Opcode::UNDEF;
 }
 
-void ISS::stack_usage(std::string elf, std::string stack_usage) {
-	funcset = std::make_unique<FunctionSet>(elf, stack_usage);
+void ISS::stack_usage(std::string stack_usage) {
+	funcset = std::make_unique<FunctionSet>(stack_usage);
 }
 
 void ISS::exec_step() {

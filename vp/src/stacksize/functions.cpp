@@ -1,74 +1,90 @@
+#include <assert.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <inttypes.h>
 
-#include <elfutils/libdwfl.h>
-
+#include <regex>
+#include <fstream>
 #include <iostream>
 #include <system_error>
 
 #include "functions.h"
 
-static char *debuginfo_path;
-static const Dwfl_Callbacks offline_callbacks = (Dwfl_Callbacks){
-	.find_elf = dwfl_build_id_find_elf,
-	.find_debuginfo = dwfl_standard_find_debuginfo,
+#define REG "([0-9a-zA-Z][0-9a-zA-Z]*)	(..*)	([0-9][0-9]*)"
+#define SUB 4 /* match includes entire string */
 
-	.section_address = dwfl_offline_section_address,
-	.debuginfo_path = &debuginfo_path,
-};
-
-FunctionSet::FunctionSet(std::string elf, std::string acc_stack_usage)
-  : stack(acc_stack_usage)
+static bool
+parseAddr(uint64_t *out, std::string input)
 {
-	int n, fd;
-	Dwfl_Module *mod;
-	Dwfl *dwfl = nullptr;
-	const char *elffn = elf.c_str();
+	int r;
 
-	if ((fd = open(elffn, O_RDONLY)) == -1)
-		throw std::system_error(errno, std::generic_category());
-	if (!(dwfl = dwfl_begin(&offline_callbacks)))
-		goto err;
+	r = sscanf(input.c_str(), "%" PRIx64 "", out);
+	return r == 1;
+}
 
-	dwfl_report_begin(dwfl);
-	if (!(mod = dwfl_report_offline(dwfl, elffn, elffn, fd)))
-		goto err;
-	if ((n = dwfl_module_getsymtab(mod)) == -1)
-		goto err;
+static bool
+parseSize(size_t *out, std::string input)
+{
+	unsigned long long r;
 
-	for (int i = 0; i < n; i++) {
-		GElf_Sym sym;
-		GElf_Addr addr;
-		const char *name;
-		size_t stacksize;
+	/* reset errno for error check */
+	errno = 0;
 
-		name = dwfl_module_getsym_info(mod, i, &sym, &addr, NULL, NULL, NULL);
-		if (!name || GELF_ST_TYPE(sym.st_info) != STT_FUNC)
-			continue;
+	r = strtoull(input.c_str(), NULL, 10);
+	if (errno != 0)
+		return false;
 
-		try {
-			stacksize = stack.get_usage(name);
-		} catch (const std::out_of_range&) {
-			std::cerr << "couldn't determine stack usage for: " + std::string(name) << std::endl;
-			continue;
-		}
+	assert(r <= SIZE_MAX);
+	*out = (size_t)r;
 
-		funcs.insert(std::make_pair<Address, FuncInfo>(
-			(Address)addr,
-			FuncInfo(std::string(name), stacksize)
-		));
+	return true;
+}
+
+static bool
+parseUsage(FuncInfo &usage, std::string line)
+{
+	std::regex re(REG);
+	std::smatch match;
+
+	if (regex_search(line, match, re)) {
+		if (match.size() != SUB)
+			return false;
+
+		usage.name = match[2].str();
+		if (!parseAddr(&usage.addr, match[1].str()))
+			return false;
+		if (!parseSize(&usage.stack_size, match[3].str()))
+			return false;
+
+		return true;
 	}
 
-	dwfl_report_end(dwfl, NULL, NULL);
-	return;
-err:
-	if (dwfl)
-		dwfl_end(dwfl);
-	close(fd);
+	return false;
+}
 
-	throw std::system_error(EIO, std::generic_category());
+FunctionSet::FunctionSet(std::string fp)
+{
+	std::string line;
+	size_t lineNum = 1;
+	std::ifstream stack_file(fp);
+
+	if (!stack_file.is_open())
+		throw std::runtime_error("failed to open " + fp);
+
+	while (std::getline(stack_file, line)) {
+		FuncInfo usage;
+
+		if (!parseUsage(usage, line))
+			throw ParserError(fp, lineNum, "invalid function stack usage");
+		funcs.insert(std::make_pair<Address, FuncInfo>(
+		       	(Address)usage.addr,
+		       	FuncInfo(usage.name, usage.addr, usage.stack_size)
+		));
+
+		lineNum++;
+	}
 }
 
 bool
