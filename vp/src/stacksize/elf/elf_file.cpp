@@ -23,6 +23,8 @@ ELFFile::ELFFile(std::string path) {
 		throw std::system_error(errno, std::generic_category());
 	if (!(dwfl = dwfl_begin(&offline_callbacks)))
 		throw std::runtime_error("dwfl_begin failed");
+
+	init();
 }
 
 ELFFile::~ELFFile(void) {

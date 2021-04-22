@@ -1,6 +1,23 @@
 #include "riot.h"
 
-RIOT::RIOT(std::string elf) {
+enum {
+	RIOT_THREADS_BASE = 0,
+	RIOT_NUM_THREADS,
+	RIOT_ACTIVE_PID,
+	RIOT_MAX_THREADS,
+	RIOT_NAME_OFFSET,
+};
+
+/* see core/sched.c in the RIOT source tree*/
+static std::string riot_symbols[] = {
+	"sched_threads",
+	"sched_num_threads",
+	"sched_active_pid",
+	"max_threads",
+	"_tcb_name_offset",
+};
+
+RIOT::RIOT(std::string fp) : elf(fp) {
 	return;
 }
 
@@ -15,7 +32,13 @@ RIOT::get_name(void) {
 
 ThreadID
 RIOT::get_active_thread(void) {
-	throw "not implemented";
+	auto symname = riot_symbols[RIOT_MAX_THREADS];
+	auto symaddr = elf.get_symbol(symname);
+
+	ThreadID id;
+	read_memory(&id, sizeof(id), symaddr);
+
+	return id;
 }
 
 Thread &
