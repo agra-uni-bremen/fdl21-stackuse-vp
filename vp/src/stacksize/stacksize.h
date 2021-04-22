@@ -19,26 +19,26 @@ public:
 		: name(_name), addr(_addr), stack_size(_stack_size) {}
 };
 
-class ParserError : public std::exception {
-	std::string fileName, msg, whatstr;
-	size_t line;
-
-	public:
-	ParserError(std::string _fileName, size_t _line, std::string _msg)
-		: fileName(_fileName), msg(_msg), line(_line)
-	{
-		this->whatstr = fileName + ":" + std::to_string(line) + ": " + msg;
-	}
-
-	const char *what(void) const throw()
-	{
-		return whatstr.c_str();
-	}
-};
-
 class FunctionSet {
 public:
 	typedef uint64_t Address;
+
+	class ParserError : public std::exception {
+		std::string fileName, msg, whatstr;
+		size_t line;
+
+		public:
+		ParserError(std::string _fileName, size_t _line, std::string _msg)
+			: fileName(_fileName), msg(_msg), line(_line)
+		{
+			this->whatstr = fileName + ":" + std::to_string(line) + ": " + msg;
+		}
+
+		const char *what(void) const throw()
+		{
+			return whatstr.c_str();
+		}
+	};
 
 	FunctionSet(std::string fp);
 

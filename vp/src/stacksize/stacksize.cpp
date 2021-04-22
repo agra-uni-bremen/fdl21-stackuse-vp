@@ -10,7 +10,7 @@
 #include <iostream>
 #include <system_error>
 
-#include "functions.h"
+#include "stacksize.h"
 
 #define REG "([0-9a-zA-Z][0-9a-zA-Z]*)	(..*)	([0-9][0-9]*)"
 #define SUB 4 /* match includes entire string */

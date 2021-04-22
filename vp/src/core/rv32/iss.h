@@ -11,7 +11,7 @@
 #include "mem_if.h"
 #include "syscall_if.h"
 #include "util/common.h"
-#include "functions.h"
+#include "stacksize.h"
 
 #include <assert.h>
 #include <stdint.h>
