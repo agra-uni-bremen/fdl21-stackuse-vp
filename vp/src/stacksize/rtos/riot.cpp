@@ -17,7 +17,16 @@ static std::string riot_symbols[] = {
 	"_tcb_name_offset",
 };
 
-RIOT::RIOT(std::string fp) : RTOS("RIOT"), elf(fp) {
+RIOT::RIOT(std::string fp) : RTOS("RIOT") {
+	ELFFile elf(fp);
+
+	auto maxsym = riot_symbols[RIOT_MAX_THREADS];
+	auto maxaddr = elf.get_symbol(maxsym);
+	read_memory(&maxthrs, sizeof(maxthrs), maxaddr);
+
+	auto basesym = riot_symbols[RIOT_THREADS_BASE];
+	baseaddr = elf.get_symbol(basesym);
+
 	return;
 }
 
@@ -25,18 +34,44 @@ RIOT::~RIOT(void) {
 	return;
 }
 
-ThreadID
-RIOT::get_active_thread(void) {
-	auto symname = riot_symbols[RIOT_ACTIVE_PID];
-	auto symaddr = elf.get_symbol(symname);
+void
+RIOT::update_threads(void) {
+	// Remove all previously recorded threads.
+	threads.clear();
 
-	ThreadID id;
-	read_memory(&id, sizeof(id), symaddr);
+	for (size_t i = 0; i < threads.size(); i++) {
+		uint32_t tcbptr;
 
-	return id;
+		uint64_t addr = baseaddr + i * sizeof(tcbptr);
+		read_memory(&tcbptr, sizeof(tcbptr), addr);
+
+		if (tcbptr == 0)
+			continue; /* unused */
+
+		threads.push_back(Thread(i, 0, 0));
+	}
 }
 
-Thread &
-RIOT::get_thread(ThreadID id) {
-	throw "not implemented";
+std::unique_ptr<Thread>
+RIOT::find_thread(ThreadID id) {
+	update_threads();
+
+	for (auto t : threads) {
+		if (t.id == id)
+			return std::make_unique<Thread>(t);
+	}
+
+	return nullptr;
+}
+
+std::unique_ptr<Thread>
+RIOT::find_thread(uint64_t stkptr) {
+	update_threads();
+
+	for (auto t : threads) {
+		if (t.stack_start >= stkptr && stkptr <= (t.stack_start + t.stack_size))
+			return std::make_unique<Thread>(t);
+	}
+
+	return nullptr;
 }

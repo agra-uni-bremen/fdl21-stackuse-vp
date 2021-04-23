@@ -9,15 +9,18 @@
 
 class RIOT : public RTOS {
 private:
-	ELFFile elf;
-	std::unordered_map<ThreadID, Thread> threads;
+	uint8_t maxthrs;
+	uint32_t baseaddr;
+
+	std::vector<Thread> threads;
+	void update_threads(void);
 
 public:
 	RIOT(std::string fp);
 	~RIOT(void);
 
-	ThreadID get_active_thread(void) override;
-	Thread &get_thread(ThreadID) override;
+	std::unique_ptr<Thread> find_thread(ThreadID);
+	std::unique_ptr<Thread> find_thread(uint64_t);
 };
 
 #endif

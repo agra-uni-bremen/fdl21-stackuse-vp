@@ -3,18 +3,23 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 #include <string>
 #include <systemc>
-#include <vector>
+#include <memory>
 #include <tlm_utils/simple_initiator_socket.h>
 
 typedef uint16_t ThreadID;
 
 class Thread {
 public:
-	ThreadID get_id(void);
-	size_t stack_size(void);
+	ThreadID id;
+	uint64_t stack_start;
+	size_t stack_size;
+
+	Thread(ThreadID _id, uint64_t _start, size_t _size)
+	  : id(_id), stack_start(_start), stack_size(_size) {}
 };
 
 class RTOS : public sc_core::sc_module {
@@ -25,10 +30,8 @@ protected:
 public:
 	tlm_utils::simple_initiator_socket<RTOS> isock;
 
-	const char *get_name(void);
-
-	virtual ThreadID get_active_thread(void) = 0;
-	virtual Thread &get_thread(ThreadID) = 0;
+	virtual std::unique_ptr<Thread> find_thread(ThreadID) = 0;
+	virtual std::unique_ptr<Thread> find_thread(uint64_t) = 0;
 };
 
 #endif

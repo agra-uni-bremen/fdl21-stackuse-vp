@@ -17,9 +17,3 @@ RTOS::read_memory(void *buf, size_t bufsiz, uint64_t addr)
 	else if (ret != bufsiz)
 		throw std::runtime_error("short write");
 }
-
-const char *
-RTOS::get_name(void)
-{
-	return this->basename();
-}
