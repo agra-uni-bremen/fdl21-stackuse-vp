@@ -103,7 +103,7 @@ int sc_main(int argc, char **argv) {
 	tlm::tlm_global_quantum::instance().set(sc_core::sc_time(opt.tlm_global_quantum, sc_core::SC_NS));
 
 	ISS core(0);
-	RIOT riot(opt.input_program);
+	RIOT riot;
 	SimpleMemory dram("DRAM", opt.dram_size);
 	SimpleMemory flash("Flash", opt.flash_size);
 	ELFLoader loader(opt.input_program.c_str());
@@ -194,6 +194,7 @@ int sc_main(int argc, char **argv) {
 	uart0.plic = &plic;
 	slip.plic = &plic;
 
+	riot.init(opt.input_program);
 	core.conf_rtos(&riot);
 
 	std::vector<debug_target_if *> threads;

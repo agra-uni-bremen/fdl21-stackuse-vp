@@ -1,6 +1,15 @@
 #include "riot.h"
 
-RIOT::RIOT(std::string fp) : RTOS("RIOT") {
+RIOT::RIOT(void) : RTOS("RIOT") {
+	return;
+}
+
+RIOT::~RIOT(void) {
+	return;
+}
+
+void
+RIOT::init(std::string fp) {
 	ELFFile elf(fp);
 
 	auto maxaddr = elf.get_symbol("max_threads");
@@ -17,18 +26,13 @@ RIOT::RIOT(std::string fp) : RTOS("RIOT") {
 	read_memory(&sizoff, sizeof(sizoff), sizaddr);
 
 	baseaddr = elf.get_symbol("sched_threads");
-	return;
-}
-
-RIOT::~RIOT(void) {
-	return;
 }
 
 void
 RIOT::update_threads(void) {
 	threads.clear(); // Remove all previously recorded threads.
 
-	for (size_t i = 0; i < threads.size(); i++) {
+	for (size_t i = 0; i < maxthrs; i++) {
 		uint32_t tcbptr;
 
 		uint32_t addr = baseaddr + i * sizeof(tcbptr);

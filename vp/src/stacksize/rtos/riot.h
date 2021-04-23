@@ -19,8 +19,10 @@ private:
 	void update_threads(void);
 
 public:
-	RIOT(std::string fp);
+	RIOT(void);
 	~RIOT(void);
+
+	void init(std::string fp);
 
 	std::unique_ptr<Thread> find_thread(ThreadID);
 	std::unique_ptr<Thread> find_thread(uint64_t);
