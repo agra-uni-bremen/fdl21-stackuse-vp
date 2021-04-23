@@ -17,7 +17,7 @@ static std::string riot_symbols[] = {
 	"_tcb_name_offset",
 };
 
-RIOT::RIOT(std::string fp) : elf(fp) {
+RIOT::RIOT(std::string fp) : RTOS("RIOT"), elf(fp) {
 	return;
 }
 
