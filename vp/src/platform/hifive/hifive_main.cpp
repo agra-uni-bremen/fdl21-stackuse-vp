@@ -19,6 +19,7 @@
 #include "uart.h"
 #include "oled.hpp"
 #include "platform/common/options.h"
+#include "riot.h"
 
 #include "gdb-mc/gdb_server.h"
 #include "gdb-mc/gdb_runner.h"
@@ -102,10 +103,11 @@ int sc_main(int argc, char **argv) {
 	tlm::tlm_global_quantum::instance().set(sc_core::sc_time(opt.tlm_global_quantum, sc_core::SC_NS));
 
 	ISS core(0);
+	RIOT riot(opt.input_program);
 	SimpleMemory dram("DRAM", opt.dram_size);
 	SimpleMemory flash("Flash", opt.flash_size);
 	ELFLoader loader(opt.input_program.c_str());
-	SimpleBus<2, 14> bus("SimpleBus");
+	SimpleBus<3, 14> bus("SimpleBus");
 	CombinedMemoryInterface iss_mem_if("MemoryInterface", core);
 	SyscallHandler sys("SyscallHandler");
 
@@ -169,6 +171,7 @@ int sc_main(int argc, char **argv) {
 	// connect TLM sockets
 	iss_mem_if.isock.bind(bus.tsocks[0]);
 	dbg_if.isock.bind(bus.tsocks[1]);
+	riot.isock.bind(bus.tsocks[2]);
 	bus.isocks[0].bind(flash.tsock);
 	bus.isocks[1].bind(dram.tsock);
 	bus.isocks[2].bind(plic.tsock);
@@ -190,6 +193,8 @@ int sc_main(int argc, char **argv) {
 	gpio0.plic = &plic;
 	uart0.plic = &plic;
 	slip.plic = &plic;
+
+	core.conf_rtos(&riot);
 
 	std::vector<debug_target_if *> threads;
 	threads.push_back(&core);
