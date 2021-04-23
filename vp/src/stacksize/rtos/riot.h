@@ -16,7 +16,6 @@ public:
 	RIOT(std::string fp);
 	~RIOT(void);
 
-	std::string get_name(void) override;
 	ThreadID get_active_thread(void) override;
 	Thread &get_thread(ThreadID) override;
 };

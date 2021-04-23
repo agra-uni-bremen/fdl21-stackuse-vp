@@ -25,7 +25,7 @@ protected:
 public:
 	tlm_utils::simple_initiator_socket<RTOS> isock;
 
-	virtual std::string get_name(void) = 0;
+	const char *get_name(void);
 
 	virtual ThreadID get_active_thread(void) = 0;
 	virtual Thread &get_thread(ThreadID) = 0;
