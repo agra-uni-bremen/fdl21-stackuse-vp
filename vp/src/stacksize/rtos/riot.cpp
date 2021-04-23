@@ -32,7 +32,7 @@ RIOT::get_name(void) {
 
 ThreadID
 RIOT::get_active_thread(void) {
-	auto symname = riot_symbols[RIOT_MAX_THREADS];
+	auto symname = riot_symbols[RIOT_ACTIVE_PID];
 	auto symaddr = elf.get_symbol(symname);
 
 	ThreadID id;
