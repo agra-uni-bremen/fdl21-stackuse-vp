@@ -1,32 +1,22 @@
 #include "riot.h"
 
-enum {
-	RIOT_THREADS_BASE = 0,
-	RIOT_NUM_THREADS,
-	RIOT_ACTIVE_PID,
-	RIOT_MAX_THREADS,
-	RIOT_NAME_OFFSET,
-};
-
-/* see core/sched.c in the RIOT source tree*/
-static std::string riot_symbols[] = {
-	"sched_threads",
-	"sched_num_threads",
-	"sched_active_pid",
-	"max_threads",
-	"_tcb_name_offset",
-};
-
 RIOT::RIOT(std::string fp) : RTOS("RIOT") {
 	ELFFile elf(fp);
 
-	auto maxsym = riot_symbols[RIOT_MAX_THREADS];
-	auto maxaddr = elf.get_symbol(maxsym);
+	auto maxaddr = elf.get_symbol("max_threads");
 	read_memory(&maxthrs, sizeof(maxthrs), maxaddr);
 
-	auto basesym = riot_symbols[RIOT_THREADS_BASE];
-	baseaddr = elf.get_symbol(basesym);
+	/* Offset of sp field in _thread struct.
+	 * XXX: Requires compilation with DEVELHELP. */
+	auto spaddr = elf.get_symbol("_tcb_sp_offset");
+	read_memory(&spoff, sizeof(spoff), spaddr);
 
+	/* Offset of stack_size field in _thread struct.
+	 * XXX: Requires compilation with DEVELHELP. */
+	auto sizaddr = elf.get_symbol("_tcb_stack_size_offset");
+	read_memory(&sizoff, sizeof(sizoff), sizaddr);
+
+	baseaddr = elf.get_symbol("sched_threads");
 	return;
 }
 
@@ -36,24 +26,29 @@ RIOT::~RIOT(void) {
 
 void
 RIOT::update_threads(void) {
-	// Remove all previously recorded threads.
-	threads.clear();
+	threads.clear(); // Remove all previously recorded threads.
 
 	for (size_t i = 0; i < threads.size(); i++) {
 		uint32_t tcbptr;
 
-		uint64_t addr = baseaddr + i * sizeof(tcbptr);
+		uint32_t addr = baseaddr + i * sizeof(tcbptr);
 		read_memory(&tcbptr, sizeof(tcbptr), addr);
-
 		if (tcbptr == 0)
 			continue; /* unused */
 
-		threads.push_back(Thread(i, 0, 0));
+		uint32_t sp;
+		read_memory(&sp, sizeof(sp), tcbptr + spoff);
+
+		int32_t stksiz; /* technically an RV32 C int */
+		read_memory(&stksiz, sizeof(stksiz), tcbptr + sizoff);
+
+		threads.push_back(Thread(i, sp, stksiz));
 	}
 }
 
 std::unique_ptr<Thread>
 RIOT::find_thread(ThreadID id) {
+	/* TODO: Heuristic for updating the thread list */
 	update_threads();
 
 	for (auto t : threads) {
@@ -66,6 +61,7 @@ RIOT::find_thread(ThreadID id) {
 
 std::unique_ptr<Thread>
 RIOT::find_thread(uint64_t stkptr) {
+	/* TODO: Heuristic for updating the thread list */
 	update_threads();
 
 	for (auto t : threads) {
