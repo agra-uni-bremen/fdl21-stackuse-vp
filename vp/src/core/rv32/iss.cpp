@@ -126,6 +126,11 @@ void ISS::stack_usage(std::string stack_usage) {
 void ISS::exec_step() {
 	assert(((pc & ~pc_alignment_mask()) == 0) && "misaligned instruction");
 
+	if (rtos) {
+		auto thrid = rtos->get_active_thread();
+		std::cout << "active thread: " << thrid << std::endl;
+	}
+
 	if (funcset && funcset->has_func(pc)) {
 		auto func = funcset->get_func(pc);
 		std::cout << "Stackframe: " << func.name << " (" << func.stack_size << " bytes)" << std::endl;
