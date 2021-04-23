@@ -79,8 +79,8 @@ FunctionSet::FunctionSet(std::string fp)
 		if (!parseUsage(usage, line))
 			throw ParserError(fp, lineNum, "invalid function stack usage");
 		funcs.insert(std::make_pair<Address, FuncInfo>(
-		       	(Address)usage.addr,
-		       	FuncInfo(usage.name, usage.addr, usage.stack_size)
+			(Address)usage.addr,
+			FuncInfo(usage.name, usage.addr, usage.stack_size)
 		));
 
 		lineNum++;
