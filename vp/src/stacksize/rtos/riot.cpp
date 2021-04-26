@@ -91,6 +91,8 @@ std::unique_ptr<Thread>
 RIOT::thread_by_stk(uint64_t stkptr) {
 	if (is_isr_stk(stkptr))
 		return nullptr;
+	else if (stkptr == 0)
+		return nullptr; /* initial value, no need to update thread list */
 
 	for (int run : {FIRST, SECOND}) {
 		for (auto t : threads) {
