@@ -1,5 +1,10 @@
 #include "riot.h"
 
+enum {
+	FIRST = 1,
+	SECOND
+};
+
 RIOT::RIOT(void) : RTOS("RIOT") {
 	return;
 }
@@ -52,12 +57,15 @@ RIOT::update_threads(void) {
 
 std::unique_ptr<Thread>
 RIOT::thread_by_id(ThreadID id) {
-	/* TODO: Heuristic for updating the thread list */
-	update_threads();
+	for (int run : {FIRST, SECOND}) {
+		for (auto t : threads) {
+			if (t.id == id)
+				return std::make_unique<Thread>(t);
+		}
 
-	for (auto t : threads) {
-		if (t.id == id)
-			return std::make_unique<Thread>(t);
+		// Thread not found on first run, update list and try again.
+		if (run == FIRST)
+			update_threads();
 	}
 
 	return nullptr;
@@ -65,12 +73,15 @@ RIOT::thread_by_id(ThreadID id) {
 
 std::unique_ptr<Thread>
 RIOT::thread_by_stk(uint64_t stkptr) {
-	/* TODO: Heuristic for updating the thread list */
-	update_threads();
+	for (int run : {FIRST, SECOND}) {
+		for (auto t : threads) {
+			if (t.stack_start >= stkptr && stkptr <= (t.stack_start + t.stack_size))
+				return std::make_unique<Thread>(t);
+		}
 
-	for (auto t : threads) {
-		if (t.stack_start >= stkptr && stkptr <= (t.stack_start + t.stack_size))
-			return std::make_unique<Thread>(t);
+		// Thread not found on first run, update list and try again.
+		if (run == FIRST)
+			update_threads();
 	}
 
 	return nullptr;
