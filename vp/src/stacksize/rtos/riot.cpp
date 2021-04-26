@@ -66,7 +66,9 @@ RIOT::update_threads(void) {
 
 bool
 RIOT::is_isr_stk(uint64_t addr) {
-	return addr >= _eheap && addr <= (_eheap + __stack_size);
+	// Stack starts at _eheap + __stack_size and grows
+	// downward towards the address specified by _eheap.
+	return addr > _eheap && addr <= (_eheap + __stack_size);
 }
 
 std::unique_ptr<Thread>
