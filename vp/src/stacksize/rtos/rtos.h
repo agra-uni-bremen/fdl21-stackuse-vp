@@ -1,6 +1,7 @@
 #ifndef RISCV_VP_RTOS_H
 #define RISCV_VP_RTOS_H
 
+#include <assert.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>

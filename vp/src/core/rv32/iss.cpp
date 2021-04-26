@@ -126,14 +126,28 @@ void ISS::stack_usage(std::string stack_usage) {
 void ISS::exec_step() {
 	assert(((pc & ~pc_alignment_mask()) == 0) && "misaligned instruction");
 
-	if (rtos) {
-		auto thrid = rtos->get_active_thread();
-		std::cout << "active thread: " << thrid << std::endl;
-	}
+/* 	if (rtos) { */
+/* 		auto thread = rtos->find_thread((uint64_t)sp); */
+/* 		if (thread) { */
+/* 			std::cout << "Executing Thread: " << thread->id << " (" << thread->stack_size << ")" << std::endl; */
+/* 		} */
+/* 	} */
 
-	if (funcset && funcset->has_func(pc)) {
+	if (rtos && funcset && funcset->has_func(pc)) {
 		auto func = funcset->get_func(pc);
-		std::cout << "Stackframe: " << func.name << " (" << func.stack_size << " bytes)" << std::endl;
+
+		uint32_t sp = regs[RegFile::sp];
+		auto thread = rtos->find_thread((uint64_t)sp);
+		if (thread) {
+			assert(sp >= func.stack_size);
+			uint32_t pred_sp = sp - func.stack_size;
+
+			if (pred_sp < thread->stack_start) {
+				raise_trap(EXC_STACK_OVERFLOW_FAULT, thread->id);
+			} else if (pred_sp < min_stkptr[thread->stack_start]) {
+				min_stkptr[thread->stack_start] = pred_sp;
+			}
+		}
 	}
 
 	try {
