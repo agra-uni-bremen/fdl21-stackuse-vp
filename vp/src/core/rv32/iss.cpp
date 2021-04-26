@@ -137,7 +137,7 @@ void ISS::exec_step() {
 		auto func = funcset->get_func(pc);
 
 		uint32_t sp = regs[RegFile::sp];
-		auto thread = rtos->find_thread((uint64_t)sp);
+		auto thread = rtos->thread_by_stk(sp);
 		if (thread) {
 			assert(sp >= func.stack_size);
 			uint32_t pred_sp = sp - func.stack_size;

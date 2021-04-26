@@ -51,7 +51,7 @@ RIOT::update_threads(void) {
 }
 
 std::unique_ptr<Thread>
-RIOT::find_thread(ThreadID id) {
+RIOT::thread_by_id(ThreadID id) {
 	/* TODO: Heuristic for updating the thread list */
 	update_threads();
 
@@ -64,7 +64,7 @@ RIOT::find_thread(ThreadID id) {
 }
 
 std::unique_ptr<Thread>
-RIOT::find_thread(uint64_t stkptr) {
+RIOT::thread_by_stk(uint64_t stkptr) {
 	/* TODO: Heuristic for updating the thread list */
 	update_threads();
 

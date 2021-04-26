@@ -24,8 +24,8 @@ public:
 
 	void init(std::string fp);
 
-	std::unique_ptr<Thread> find_thread(ThreadID);
-	std::unique_ptr<Thread> find_thread(uint64_t);
+	std::unique_ptr<Thread> thread_by_id(ThreadID);
+	std::unique_ptr<Thread> thread_by_stk(uint64_t);
 };
 
 #endif

@@ -31,8 +31,8 @@ protected:
 public:
 	tlm_utils::simple_initiator_socket<RTOS> isock;
 
-	virtual std::unique_ptr<Thread> find_thread(ThreadID) = 0;
-	virtual std::unique_ptr<Thread> find_thread(uint64_t) = 0;
+	virtual std::unique_ptr<Thread> thread_by_id(ThreadID) = 0;
+	virtual std::unique_ptr<Thread> thread_by_stk(uint64_t) = 0;
 };
 
 #endif
