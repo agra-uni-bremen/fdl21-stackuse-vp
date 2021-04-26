@@ -5,6 +5,11 @@ enum {
 	SECOND
 };
 
+static inline bool
+contains(uint64_t start, size_t size, uint64_t addr) {
+	return addr >= start && addr < (start + size);
+}
+
 RIOT::RIOT(void) : RTOS("RIOT") {
 	return;
 }
@@ -75,7 +80,7 @@ std::unique_ptr<Thread>
 RIOT::thread_by_stk(uint64_t stkptr) {
 	for (int run : {FIRST, SECOND}) {
 		for (auto t : threads) {
-			if (t.stack_start >= stkptr && stkptr <= (t.stack_start + t.stack_size))
+			if (contains(t.stack_start, t.stack_size, stkptr))
 				return std::make_unique<Thread>(t);
 		}
 
