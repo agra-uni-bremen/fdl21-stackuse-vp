@@ -140,7 +140,8 @@ void ISS::exec_step() {
 		uint32_t sp = regs[RegFile::sp];
 		auto thread = rtos->thread_by_stk(sp);
 		if (thread) {
-			assert(sp >= func.stack_size);
+			if (func.stack_size > sp)
+				raise_trap(EXC_STACK_OVERFLOW_FAULT, thread->id);
 			uint32_t pred_sp = sp - func.stack_size;
 
 			if (pred_sp < thread->stack_start) {
