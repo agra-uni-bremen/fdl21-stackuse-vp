@@ -25,7 +25,7 @@ RIOT::init(std::string fp) {
 	auto maxaddr = elf.get_symbol("max_threads");
 	read_memory(&maxthrs, sizeof(maxthrs), maxaddr);
 
-	/* Offset of sp field in _thread struct.
+	/* Offset of stack_start field in _thread struct.
 	 * XXX: Requires compilation with DEVELHELP. */
 	auto spaddr = elf.get_symbol("_tcb_stack_start_offset");
 	read_memory(&startoff, sizeof(startoff), spaddr);
@@ -34,6 +34,10 @@ RIOT::init(std::string fp) {
 	 * XXX: Requires compilation with DEVELHELP. */
 	auto sizaddr = elf.get_symbol("_tcb_stack_size_offset");
 	read_memory(&sizoff, sizeof(sizoff), sizaddr);
+
+	/* ISR stack */
+	_eheap = elf.get_symbol("_eheap");
+	__stack_size = elf.get_symbol("__stack_size");
 
 	baseaddr = elf.get_symbol("sched_threads");
 }
@@ -60,6 +64,11 @@ RIOT::update_threads(void) {
 	}
 }
 
+bool
+RIOT::is_isr_stk(uint64_t addr) {
+	return addr >= _eheap && addr <= (_eheap + __stack_size);
+}
+
 std::unique_ptr<Thread>
 RIOT::thread_by_id(ThreadID id) {
 	for (int run : {FIRST, SECOND}) {
@@ -78,6 +87,9 @@ RIOT::thread_by_id(ThreadID id) {
 
 std::unique_ptr<Thread>
 RIOT::thread_by_stk(uint64_t stkptr) {
+	if (is_isr_stk(stkptr))
+		return nullptr;
+
 	for (int run : {FIRST, SECOND}) {
 		for (auto t : threads) {
 			if (contains(t.stack_start, t.stack_size, stkptr))

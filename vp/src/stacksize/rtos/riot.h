@@ -15,8 +15,14 @@ private:
 	uint8_t startoff;
 	uint8_t sizoff;
 
+	/* ISR stack */
+	uint32_t _eheap;
+	uint64_t __stack_size;
+
 	std::vector<Thread> threads;
+
 	void update_threads(void);
+	bool is_isr_stk(uint64_t);
 
 public:
 	RIOT(void);
