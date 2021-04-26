@@ -17,8 +17,8 @@ RIOT::init(std::string fp) {
 
 	/* Offset of sp field in _thread struct.
 	 * XXX: Requires compilation with DEVELHELP. */
-	auto spaddr = elf.get_symbol("_tcb_sp_offset");
-	read_memory(&spoff, sizeof(spoff), spaddr);
+	auto spaddr = elf.get_symbol("_tcb_stack_start_offset");
+	read_memory(&startoff, sizeof(startoff), spaddr);
 
 	/* Offset of stack_size field in _thread struct.
 	 * XXX: Requires compilation with DEVELHELP. */
@@ -40,13 +40,13 @@ RIOT::update_threads(void) {
 		if (tcbptr == 0)
 			continue; /* unused */
 
-		uint32_t sp;
-		read_memory(&sp, sizeof(sp), tcbptr + spoff);
+		uint32_t stkstart;
+		read_memory(&stkstart, sizeof(stkstart), tcbptr + startoff);
 
 		int32_t stksiz; /* technically an RV32 C int */
 		read_memory(&stksiz, sizeof(stksiz), tcbptr + sizoff);
 
-		threads.push_back(Thread(i, sp, stksiz));
+		threads.push_back(Thread(i, stkstart, stksiz));
 	}
 }
 

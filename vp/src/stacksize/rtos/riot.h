@@ -12,7 +12,7 @@ private:
 	uint8_t maxthrs;
 	uint32_t baseaddr;
 
-	uint8_t spoff;
+	uint8_t startoff;
 	uint8_t sizoff;
 
 	std::vector<Thread> threads;
