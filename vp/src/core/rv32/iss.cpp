@@ -134,6 +134,7 @@ void ISS::exec_step() {
 /* 	} */
 
 	if (rtos && funcset && funcset->has_func(pc)) {
+		// XXX: Assuming the stack grows downward (towards stack_start).
 		auto func = funcset->get_func(pc);
 
 		uint32_t sp = regs[RegFile::sp];
