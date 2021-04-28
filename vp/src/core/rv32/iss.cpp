@@ -123,27 +123,33 @@ void ISS::stack_usage(std::string stack_usage) {
 	funcset = std::make_unique<FunctionSet>(stack_usage);
 }
 
+void ISS::update_stkuse(FuncInfo &func) {
+	uint32_t sp = regs[RegFile::sp];
+	auto thread = rtos->thread_by_stk(sp);
+	if (thread) {
+		if (func.stack_size > sp)
+			raise_trap(EXC_STACK_OVERFLOW_FAULT, thread->id);
+		uint32_t pred_sp = sp - func.stack_size;
+
+		const Thread t = *thread;
+		if (pred_sp < thread->stack_start) {
+			raise_trap(EXC_STACK_OVERFLOW_FAULT, thread->id);
+		} else if (!min_stkptr.count(t) || pred_sp < min_stkptr[t]) {
+			min_stkptr[t] = pred_sp;
+		}
+	}
+}
+
 void ISS::exec_step() {
 	assert(((pc & ~pc_alignment_mask()) == 0) && "misaligned instruction");
 
 	if (rtos && funcset && funcset->has_func(pc)) {
 		// XXX: Assuming the stack grows downward (towards stack_start).
 		auto func = funcset->get_func(pc);
-
-		uint32_t sp = regs[RegFile::sp];
-		auto thread = rtos->thread_by_stk(sp);
-		if (thread) {
-			if (func.stack_size > sp)
-				raise_trap(EXC_STACK_OVERFLOW_FAULT, thread->id);
-			uint32_t pred_sp = sp - func.stack_size;
-
-			const Thread t = *thread;
-			if (pred_sp < thread->stack_start) {
-				raise_trap(EXC_STACK_OVERFLOW_FAULT, thread->id);
-			} else if (!min_stkptr.count(t) || pred_sp < min_stkptr[t]) {
-				min_stkptr[t] = pred_sp;
-			}
-		}
+		if (func.name == "exit")
+			shall_exit = true;
+		else
+			update_stkuse(func);
 	}
 
 	try {
