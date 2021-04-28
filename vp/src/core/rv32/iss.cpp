@@ -126,13 +126,6 @@ void ISS::stack_usage(std::string stack_usage) {
 void ISS::exec_step() {
 	assert(((pc & ~pc_alignment_mask()) == 0) && "misaligned instruction");
 
-/* 	if (rtos) { */
-/* 		auto thread = rtos->find_thread((uint64_t)sp); */
-/* 		if (thread) { */
-/* 			std::cout << "Executing Thread: " << thread->id << " (" << thread->stack_size << ")" << std::endl; */
-/* 		} */
-/* 	} */
-
 	if (rtos && funcset && funcset->has_func(pc)) {
 		// XXX: Assuming the stack grows downward (towards stack_start).
 		auto func = funcset->get_func(pc);
