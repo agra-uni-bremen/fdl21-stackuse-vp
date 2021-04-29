@@ -137,10 +137,11 @@ void ISS::exec_step() {
 				raise_trap(EXC_STACK_OVERFLOW_FAULT, thread->id);
 			uint32_t pred_sp = sp - func.stack_size;
 
+			const Thread t = *thread;
 			if (pred_sp < thread->stack_start) {
 				raise_trap(EXC_STACK_OVERFLOW_FAULT, thread->id);
-			} else if (pred_sp < min_stkptr[thread->stack_start]) {
-				min_stkptr[thread->stack_start] = pred_sp;
+			} else if (!min_stkptr.count(t) || pred_sp < min_stkptr[t]) {
+				min_stkptr[t] = pred_sp;
 			}
 		}
 	}
