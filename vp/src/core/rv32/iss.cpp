@@ -1911,6 +1911,6 @@ void ISS::show() {
 		std::cout << "Thread " << t.id << " [0x"
 			<< std::hex << t.stack_start << ", 0x"
 			<< std::hex << (t.stack_start + t.stack_size) << "]: "
-			<< (t.stack_start + t.stack_size) - sp << " bytes" << std::endl;
+			<< std::dec << (t.stack_start + t.stack_size) - sp << " bytes" << std::endl;
 	}
 }
