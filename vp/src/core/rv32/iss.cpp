@@ -1896,4 +1896,15 @@ void ISS::show() {
 	regs.show();
 	std::cout << "pc = " << std::hex << pc << std::endl;
 	std::cout << "num-instr = " << std::dec << csrs.instret.reg << std::endl;
+
+	std::cout << std::endl << "---" << std::endl << std::endl;
+	for (auto pair : min_stkptr) {
+		auto t = pair.first;
+		auto sp = pair.second;
+
+		std::cout << "Thread " << t.id << " [0x"
+			<< std::hex << t.stack_start << ", 0x"
+			<< std::hex << (t.stack_start + t.stack_size) << "]: "
+			<< (t.stack_start + t.stack_size) - sp << " bytes" << std::endl;
+	}
 }
