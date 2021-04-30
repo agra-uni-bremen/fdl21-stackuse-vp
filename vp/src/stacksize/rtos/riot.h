@@ -7,6 +7,8 @@
 #include "elf_file.h"
 #include "rtos.h"
 
+#define THREAD_ID_STK -1
+
 class RIOT : public RTOS {
 private:
 	uint8_t maxthrs;
@@ -31,7 +33,7 @@ public:
 	void init(std::string fp);
 	bool is_exit(std::string func_name);
 
-	std::unique_ptr<Thread> thread_by_id(ThreadID);
+	std::unique_ptr<Thread> thread_by_id(int);
 	std::unique_ptr<Thread> thread_by_stk(uint64_t);
 };
 

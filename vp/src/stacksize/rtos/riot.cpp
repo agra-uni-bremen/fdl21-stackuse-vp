@@ -77,7 +77,7 @@ RIOT::is_isr_stk(uint64_t addr) {
 }
 
 std::unique_ptr<Thread>
-RIOT::thread_by_id(ThreadID id) {
+RIOT::thread_by_id(int id) {
 	for (int run : {FIRST, SECOND}) {
 		for (auto t : threads) {
 			if (t.id == id)

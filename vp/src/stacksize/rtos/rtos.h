@@ -11,18 +11,16 @@
 #include <memory>
 #include <tlm_utils/simple_initiator_socket.h>
 
-typedef uint16_t ThreadID;
-
 class Thread {
 public:
-	ThreadID id;
+	int id;
 	uint64_t stack_start;
 	size_t stack_size;
 
 	Thread()
 	  : id(0), stack_start(0), stack_size(0) {}
 
-	Thread(ThreadID _id, uint64_t _start, size_t _size)
+	Thread(int _id, uint64_t _start, size_t _size)
 	  : id(_id), stack_start(_start), stack_size(_size) {}
 
 	bool operator==(const Thread& rhs) const {
@@ -50,7 +48,7 @@ public:
 
 	virtual bool is_exit(std::string func_name) = 0;
 
-	virtual std::unique_ptr<Thread> thread_by_id(ThreadID) = 0;
+	virtual std::unique_ptr<Thread> thread_by_id(int) = 0;
 	virtual std::unique_ptr<Thread> thread_by_stk(uint64_t) = 0;
 };
 
