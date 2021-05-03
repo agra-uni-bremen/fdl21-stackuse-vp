@@ -128,12 +128,12 @@ void ISS::update_stkuse(FuncInfo &func) {
 	auto thread = rtos->thread_by_stk(sp);
 	if (thread) {
 		if (func.stack_size > sp)
-			raise_trap(EXC_STACK_OVERFLOW_FAULT, thread->id);
+			raise_trap(EXC_STACK_OVERFLOW_FAULT, sp);
 		uint32_t pred_sp = sp - func.stack_size;
 
 		const Thread t = *thread;
 		if (pred_sp < thread->stack_start) {
-			raise_trap(EXC_STACK_OVERFLOW_FAULT, thread->id);
+			raise_trap(EXC_STACK_OVERFLOW_FAULT, sp);
 		} else if (!min_stkptr.count(t) || pred_sp < min_stkptr[t]) {
 			min_stkptr[t] = pred_sp;
 		}
