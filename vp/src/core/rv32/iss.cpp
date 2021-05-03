@@ -125,7 +125,7 @@ void ISS::stack_usage(std::string stack_usage) {
 
 void ISS::handle_overflow(uint32_t sp) {
 	// XXX: Don't raise a trap here as the ISR stack itself
-	// may have overflowd. Exit the VP itself instead.
+	// may have overflowed. Exit the VP itself instead.
 	std::string msg = "Stack Overlow with sp = " + std::to_string(sp);
 	SC_REPORT_ERROR("/AGRA/riscv-vp/stack-overflow", msg.c_str());
 }
