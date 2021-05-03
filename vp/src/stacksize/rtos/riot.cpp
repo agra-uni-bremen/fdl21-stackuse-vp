@@ -35,9 +35,9 @@ RIOT::init(std::string fp) {
 	auto sizaddr = elf.get_symbol("_tcb_stack_size_offset");
 	read_memory(&sizoff, sizeof(sizoff), sizaddr);
 
-	/* ISR stack */
-	_eheap = elf.get_symbol("_eheap");
-	__stack_size = elf.get_symbol("__stack_size");
+	isr.id = THREAD_ID_STK;
+	isr.stack_start = elf.get_symbol("_eheap");
+	isr.stack_size = elf.get_symbol("__stack_size");
 
 	baseaddr = elf.get_symbol("sched_threads");
 }
@@ -50,6 +50,7 @@ RIOT::is_exit(std::string func_name) {
 void
 RIOT::update_threads(void) {
 	threads.clear(); // Remove all previously recorded threads.
+	threads.push_back(isr);
 
 	for (size_t i = 0; i < maxthrs; i++) {
 		uint32_t tcbptr;
@@ -71,13 +72,15 @@ RIOT::update_threads(void) {
 
 bool
 RIOT::is_isr_stk(uint64_t addr) {
-	// Stack starts at _eheap + __stack_size and grows
-	// downward towards the address specified by _eheap.
-	return addr > _eheap && addr <= (_eheap + __stack_size);
+	auto end = isr.stack_start + isr.stack_size;
+	return addr > isr.stack_start && addr <= end;
 }
 
 std::unique_ptr<Thread>
 RIOT::thread_by_id(int id) {
+	if (id == THREAD_ID_STK)
+		return std::make_unique<Thread>(isr);
+
 	for (int run : {FIRST, SECOND}) {
 		for (auto t : threads) {
 			if (t.id == id)
@@ -95,7 +98,7 @@ RIOT::thread_by_id(int id) {
 std::unique_ptr<Thread>
 RIOT::thread_by_stk(uint64_t stkptr) {
 	if (is_isr_stk(stkptr))
-		return nullptr;
+		return std::make_unique<Thread>(isr);
 	else if (stkptr == 0)
 		return nullptr; /* initial value, no need to update thread list */
 

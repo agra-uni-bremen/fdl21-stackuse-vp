@@ -18,8 +18,7 @@ private:
 	uint8_t sizoff;
 
 	/* ISR stack */
-	uint32_t _eheap;
-	uint64_t __stack_size;
+	Thread isr;
 
 	std::vector<Thread> threads;
 
