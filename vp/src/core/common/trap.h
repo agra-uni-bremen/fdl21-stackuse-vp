@@ -31,8 +31,6 @@ enum ExceptionCode {
 	EXC_INSTR_PAGE_FAULT = 12,
 	EXC_LOAD_PAGE_FAULT = 13,
 	EXC_STORE_AMO_PAGE_FAULT = 15,
-
-	EXC_STACK_OVERFLOW_FAULT = 25,
 };
 
 struct SimulationTrap {

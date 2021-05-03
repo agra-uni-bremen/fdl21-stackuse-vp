@@ -198,6 +198,7 @@ struct ISS : public external_interrupt_target, public clint_interrupt_target, pu
 	void stack_usage(std::string);
 	void conf_rtos(RTOS *);
 	void update_stkuse(FuncInfo &func);
+	void handle_overflow(uint32_t);
 
 	void exec_step();
 

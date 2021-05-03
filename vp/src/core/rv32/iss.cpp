@@ -123,17 +123,24 @@ void ISS::stack_usage(std::string stack_usage) {
 	funcset = std::make_unique<FunctionSet>(stack_usage);
 }
 
+void ISS::handle_overflow(uint32_t sp) {
+	// XXX: Don't raise a trap here as the ISR stack itself
+	// may have overflowd. Exit the VP itself instead.
+	std::string msg = "Stack Overlow with sp = " + std::to_string(sp);
+	SC_REPORT_ERROR("/AGRA/riscv-vp/stack-overflow", msg.c_str());
+}
+
 void ISS::update_stkuse(FuncInfo &func) {
 	uint32_t sp = regs[RegFile::sp];
 	auto thread = rtos->thread_by_stk(sp);
 	if (thread) {
 		if (func.stack_size > sp)
-			raise_trap(EXC_STACK_OVERFLOW_FAULT, sp);
+			handle_overflow(sp);
 		uint32_t pred_sp = sp - func.stack_size;
 
 		const Thread t = *thread;
 		if (pred_sp < thread->stack_start) {
-			raise_trap(EXC_STACK_OVERFLOW_FAULT, sp);
+			handle_overflow(sp);
 		} else if (!min_stkptr.count(t) || pred_sp < min_stkptr[t]) {
 			min_stkptr[t] = pred_sp;
 		}
