@@ -16,6 +16,7 @@ private:
 
 	uint8_t startoff;
 	uint8_t sizoff;
+	uint8_t nameoff;
 
 	/* ISR stack */
 	Thread isr;

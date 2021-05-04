@@ -1917,7 +1917,7 @@ void ISS::show() {
 		auto t = pair.first;
 		auto sp = pair.second;
 
-		std::cout << "Thread " << t.id << " [0x"
+		std::cout << t.name << " Thread [0x"
 			<< std::hex << t.stack_start << ", 0x"
 			<< std::hex << (t.stack_start + t.stack_size) << "]: "
 			<< std::dec << (t.stack_start + t.stack_size) - sp << "/"

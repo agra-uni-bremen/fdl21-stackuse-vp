@@ -35,6 +35,13 @@ RIOT::init(std::string fp) {
 	auto sizaddr = elf.get_symbol("_tcb_stack_size_offset");
 	read_memory(&sizoff, sizeof(sizoff), sizaddr);
 
+	/* Offset of name field in _thread struct.
+	 * Not strictly required, but useful for debugging.
+	 * XXX: Requires compilation with DEVELHELP. */
+	auto nameaddr = elf.get_symbol("_tcb_name_offset");
+	read_memory(&nameoff, sizeof(nameoff), nameaddr);
+
+	isr.name = "ISR";
 	isr.id = THREAD_ID_STK;
 	isr.stack_start = elf.get_symbol("_eheap");
 	isr.stack_size = elf.get_symbol("__stack_size");
@@ -66,7 +73,10 @@ RIOT::update_threads(void) {
 		int32_t stksiz; /* technically an RV32 C int */
 		read_memory(&stksiz, sizeof(stksiz), tcbptr + sizoff);
 
-		threads.push_back(Thread(i, stkstart, stksiz));
+		uint32_t nameaddr;
+		read_memory(&nameaddr, sizeof(nameaddr), tcbptr + nameoff);
+
+		threads.push_back(Thread(i, stkstart, stksiz, read_string(nameaddr)));
 	}
 }
 
