@@ -44,6 +44,7 @@ public:
 class RTOS : public sc_core::sc_module {
 protected:
 	void read_memory(void *buf, size_t bufsiz, uint64_t addr);
+	std::string read_string(uint64_t addr);
 
 	RTOS(sc_core::sc_module_name name) : sc_module(name) {}
 public:

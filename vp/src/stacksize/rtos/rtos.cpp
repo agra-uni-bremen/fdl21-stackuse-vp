@@ -1,5 +1,7 @@
 #include "rtos.h"
 
+#include <sstream>
+
 void
 RTOS::read_memory(void *buf, size_t bufsiz, uint64_t addr)
 {
@@ -16,4 +18,18 @@ RTOS::read_memory(void *buf, size_t bufsiz, uint64_t addr)
 		throw std::runtime_error("debug transaction failed");
 	else if (ret != bufsiz)
 		throw std::runtime_error("short write");
+}
+
+std::string
+RTOS::read_string(uint64_t addr)
+{
+	char c;
+	std::ostringstream stream;
+
+	do {
+		read_memory(&c, sizeof(c), addr++);
+		stream << c;
+	} while (c != '\0');
+
+	return stream.str();
 }
