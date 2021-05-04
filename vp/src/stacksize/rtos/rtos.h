@@ -17,11 +17,14 @@ public:
 	uint64_t stack_start;
 	size_t stack_size;
 
+	/* optional */
+	std::string name;
+
 	Thread()
 	  : id(0), stack_start(0), stack_size(0) {}
 
-	Thread(int _id, uint64_t _start, size_t _size)
-	  : id(_id), stack_start(_start), stack_size(_size) {}
+	Thread(int _id, uint64_t _start, size_t _size, std::string _name = "")
+	  : id(_id), stack_start(_start), stack_size(_size), name(_name) {}
 
 	bool operator==(const Thread& rhs) const {
 		return stack_start == rhs.stack_start;
