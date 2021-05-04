@@ -49,11 +49,6 @@ RIOT::init(std::string fp) {
 	baseaddr = elf.get_symbol("sched_threads");
 }
 
-bool
-RIOT::is_exit(std::string func_name) {
-	return func_name == "exit";
-}
-
 void
 RIOT::update_threads(void) {
 	threads.clear(); // Remove all previously recorded threads.

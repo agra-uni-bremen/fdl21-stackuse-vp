@@ -173,6 +173,7 @@ struct ISS : public external_interrupt_target, public clint_interrupt_target, pu
 	std::unique_ptr<FunctionSet> funcset = nullptr;
 	RTOS *rtos = nullptr;
 	std::unordered_map<Thread, uint32_t, ThreadHash> min_stkptr; // stack_start → min_stackptr
+	std::string exit_func;
 
 	// last decoded and executed instruction and opcode
 	Instruction instr;

@@ -153,7 +153,7 @@ void ISS::exec_step() {
 	if (rtos && funcset && funcset->has_func(pc)) {
 		// XXX: Assuming the stack grows downward (towards stack_start).
 		auto func = funcset->get_func(pc);
-		if (rtos->is_exit(func.name)) {
+		if (!exit_func.empty() && func.name == exit_func) {
 			shall_exit = true;
 			return;
 		} else {

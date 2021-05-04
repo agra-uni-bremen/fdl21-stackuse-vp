@@ -85,12 +85,14 @@ public:
 	bool enable_can = false;
 	std::string tun_device = "tun0";
 	std::string stack_usage;
+	std::string exit_func;
 
 	HifiveOptions(void) {
         	// clang-format off
 		add_options()
 			("enable-can", po::bool_switch(&enable_can), "enable support for CAN peripheral")
 			("tun-device", po::value<std::string>(&tun_device), "tun device used by SLIP")
+			("exit-func", po::value<std::string>(&exit_func), "name of termination function")
 			("stack-usage", po::value<std::string>(&stack_usage)->required(), "accumulated function stack-usage file");
         	// clang-format on
 	}
@@ -113,6 +115,7 @@ int sc_main(int argc, char **argv) {
 	CombinedMemoryInterface iss_mem_if("MemoryInterface", core);
 	SyscallHandler sys("SyscallHandler");
 
+	core.exit_func = opt.exit_func;
 	core.stack_usage(opt.stack_usage);
 
 	FE310_PLIC<1, 53, 64, 7> plic("PLIC");

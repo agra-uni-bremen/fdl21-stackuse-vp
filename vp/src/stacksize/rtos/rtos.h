@@ -50,8 +50,6 @@ protected:
 public:
 	tlm_utils::simple_initiator_socket<RTOS> isock;
 
-	virtual bool is_exit(std::string func_name) = 0;
-
 	virtual std::unique_ptr<Thread> thread_by_id(int) = 0;
 	virtual std::unique_ptr<Thread> thread_by_stk(uint64_t) = 0;
 };

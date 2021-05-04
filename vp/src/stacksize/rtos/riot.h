@@ -31,7 +31,6 @@ public:
 	~RIOT(void);
 
 	void init(std::string fp);
-	bool is_exit(std::string func_name);
 
 	std::unique_ptr<Thread> thread_by_id(int);
 	std::unique_ptr<Thread> thread_by_stk(uint64_t);
