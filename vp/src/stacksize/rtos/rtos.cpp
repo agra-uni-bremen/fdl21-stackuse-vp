@@ -23,13 +23,15 @@ RTOS::read_memory(void *buf, size_t bufsiz, uint64_t addr)
 std::string
 RTOS::read_string(uint64_t addr)
 {
-	char c;
+	char c = '\0';
 	std::ostringstream stream;
 
-	do {
+	for (;;) {
 		read_memory(&c, sizeof(c), addr++);
+		if (c == '\0')
+			break;
 		stream << c;
-	} while (c != '\0');
+	}
 
 	return stream.str();
 }
