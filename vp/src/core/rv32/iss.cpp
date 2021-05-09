@@ -1921,7 +1921,7 @@ void ISS::show() {
 		uint64_t configured = ((t.stack_start + t.stack_size) - t.stack_start);
 
 		double used = ((double)measured/(double)configured) * 100;
-		std::cout.precision(4);
+		std::cout.precision(2);
 		std::cout << t.name << "\t"
 			<< std::dec << measured << "/"
 			<< std::dec << configured << "\t"
