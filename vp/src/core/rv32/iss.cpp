@@ -1917,10 +1917,13 @@ void ISS::show() {
 		auto t = pair.first;
 		auto sp = pair.second;
 
-		std::cout << t.name << " Thread [0x"
-			<< std::hex << t.stack_start << ", 0x"
-			<< std::hex << (t.stack_start + t.stack_size) << "]: "
-			<< std::dec << (t.stack_start + t.stack_size) - sp << "/"
-			<< std::dec << ((t.stack_start + t.stack_size) - t.stack_start) << " bytes" << std::endl;
+		uint64_t measured = (t.stack_start + t.stack_size) - sp;
+		uint64_t configured = ((t.stack_start + t.stack_size) - t.stack_start);
+
+		double used = ((double)measured/(double)configured) * 100;
+		std::cout << t.name << "\t"
+			<< std::dec << measured << "/"
+			<< std::dec << configured << "\t"
+			<< used << std::endl;
 	}
 }
